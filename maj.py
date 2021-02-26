@@ -5,7 +5,7 @@ tsu_list = [31,32,33,34,35,36,37]
 #1-9m  11-19s 21-29p 31-34东南西北 35-37中发白
 
 #输入实例
-raw_maj = [1,9,11,19,21,29,31,32,33,34,35,36,37,4]
+raw_maj = [2,2,2,3,5]
 print(raw_maj)
 
 #数搭子
@@ -63,16 +63,18 @@ class Dazi_Clac:
 
 #和了判定
     def Maj_Agari(maj):
-        maj = Dazi_Clac.Tenpai_Arrange(maj)
+        c = Dazi_Clac.Tenpai_Arrange(maj)
         maj_jyan = Dazi_Clac.Maj_GetJyan(maj)
         if len(maj_jyan) == 7:
            agari = True
-        elif len(maj_jyan) == 1:
-            agari = True
-            for num in yaocyu_list:
-                if num not in maj:
-                    agari = False
         elif len(maj_jyan) != 0:
+            #雀头为1时检查国土
+            if  len(maj_jyan) == 1:
+                agari = True
+                for num in yaocyu_list:
+                    if num not in maj:
+                        agari = False
+                        break
             for jyan_num in maj_jyan:
                 maj_temp = []
                 maj_temp += maj
@@ -130,6 +132,7 @@ class Tenpai_Clac:
             if tenpai_list != []:
                 kiru_list[num] = tenpai_list
         return kiru_list
+
 
 
 
