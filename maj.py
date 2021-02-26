@@ -65,22 +65,17 @@ class Dazi_Clac:
     def Maj_Agari(maj):
         c = Dazi_Clac.Tenpai_Arrange(maj)
         maj_jyan = Dazi_Clac.Maj_GetJyan(maj)
+        #七对判定
         if len(maj_jyan) == 7:
            agari = True
         elif len(maj_jyan) != 0:
-            #雀头为1时检查国土
-            if  len(maj_jyan) == 1:
-                agari = True
-                for num in yaocyu_list:
-                    if num not in maj:
-                        agari = False
-                        break
             for jyan_num in maj_jyan:
                 maj_temp = []
                 maj_temp += maj
                 maj_temp.remove(maj[jyan_num])
                 maj_temp.remove(maj[jyan_num])
                 lenth = len(maj_temp)
+                #标记刻子，顺子
                 for num in range(0,lenth-2):
                     if maj_temp[num] != 99:
                         if maj_temp[num] != maj_temp[num+1] and maj_temp[num] +1 not in maj_temp:
@@ -97,10 +92,18 @@ class Dazi_Clac:
                             maj_temp.insert(0,99)
                             maj_temp.insert(0,99)
                             maj_temp.insert(0,99)
+                #去除所有面子，检查是否有孤张
                 maj_temp = [num for num in maj_temp if num != 99]
                 if not maj_temp:
                     agari = True
                     break
+                #国土判定
+                elif len(maj_jyan) == 1:
+                    agari = True
+                    for num in yaocyu_list:
+                        if num not in maj:
+                            agari = False
+                            break
                 else:
                     agari = False
         else:
@@ -132,7 +135,6 @@ class Tenpai_Clac:
             if tenpai_list != []:
                 kiru_list[num] = tenpai_list
         return kiru_list
-
 
 
 
