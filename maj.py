@@ -112,7 +112,7 @@ class Dazi_Calc:
 
            
 class Tenpai_Calc:
-#13张牌的待张计算  
+#(3n+1)张牌的待张计算
     def Tenpai_Machi(maj):
         machi_list = []
         for num in maj_list:
@@ -123,7 +123,7 @@ class Tenpai_Calc:
                 machi_list.append(num)
         return machi_list
     
-#14张牌的何切计算
+#(3n+2)张牌的何切计算
     def Nani_Giru(maj):
         kire_list = list(set(maj))
         kiru_list = {}
