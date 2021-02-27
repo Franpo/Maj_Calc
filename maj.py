@@ -5,11 +5,11 @@ tsu_list = [31,32,33,34,35,36,37]
 #1-9m  11-19s 21-29p 31-34东南西北 35-37中发白
 
 #输入实例
-raw_maj = [2,2,2,3,5]
+raw_maj = [2,3,4,4,4,4,5,5,6,6,6,6,7,8]
 print(raw_maj)
 
 #数搭子
-class Dazi_Clac:
+class Dazi_Calc:
 
     def Tenpai_Arrange(maj):
         maj.sort()
@@ -63,8 +63,8 @@ class Dazi_Clac:
 
 #和了判定
     def Maj_Agari(maj):
-        c = Dazi_Clac.Tenpai_Arrange(maj)
-        maj_jyan = Dazi_Clac.Maj_GetJyan(maj)
+        maj = Dazi_Calc.Tenpai_Arrange(maj)
+        maj_jyan = Dazi_Calc.Maj_GetJyan(maj)
         #七对判定
         if len(maj_jyan) == 7:
            agari = True
@@ -111,7 +111,7 @@ class Dazi_Clac:
         return agari
 
            
-class Tenpai_Clac:
+class Tenpai_Calc:
 #13张牌的待张计算  
     def Tenpai_Machi(maj):
         machi_list = []
@@ -119,7 +119,7 @@ class Tenpai_Clac:
             maj_temp = []
             maj_temp += maj
             maj_temp.append(num)
-            if Dazi_Clac.Maj_Agari(maj_temp) == True:
+            if Dazi_Calc.Maj_Agari(maj_temp) == True:
                 machi_list.append(num)
         return machi_list
     
@@ -131,13 +131,13 @@ class Tenpai_Clac:
             maj_temp = []
             maj_temp += maj
             maj_temp.remove(num)
-            tenpai_list = Tenpai_Clac.Tenpai_Machi(maj_temp)
+            tenpai_list = Tenpai_Calc.Tenpai_Machi(maj_temp)
             if tenpai_list != []:
                 kiru_list[num] = tenpai_list
         return kiru_list
 
 
 
-kiru = Tenpai_Clac.Nani_Giru(raw_maj)
+kiru = Tenpai_Calc.Nani_Giru(raw_maj)
 
 print("切牌种类：\n" + str(kiru))
