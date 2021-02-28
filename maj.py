@@ -4,11 +4,15 @@ yaocyu_list = [1,9,11,19,21,29,31,32,33,34,35,36,37]
 tsu_list = [31,32,33,34,35,36,37]
 #1-9m  11-19s 21-29p 31-34东南西北 35-37中发白
 
+
 #输入实例，规范化输入由前端完成
-raw_maj = [1,1,2,2,3,3,5,5,6,6,8,8,9]
+raw_maj = [1,1,2,2,3,3,4,4,6,6,7,7,9]
 income_maj = 9
 print("手牌"+ str(raw_maj))
 print("进张" + str(income_maj))
+
+
+
 
 #数搭子的库
 class Dazi_Calc:
@@ -16,6 +20,7 @@ class Dazi_Calc:
     def Tenpai_Arrange(maj):
         maj.sort()
         return maj
+    
     def Maj_GetM(maj):
         maj_m = []
         for num in maj:
@@ -43,6 +48,14 @@ class Dazi_Calc:
             if num >30 and num <40:
                 maj_z.append(num)
         return maj_z
+
+    #老头牌+字
+    def Maj_GetL(maj):
+        maj_l = []
+        for num in maj:
+            if num in yaocyu_list:
+                maj_l.append(num)
+        return maj_l
     
     #标出所有雀头位置    
     def Maj_GetJyan(maj):
@@ -174,6 +187,19 @@ class Han_Judge:
             if len(maj) == len(m) or len(maj) == len(s) or len(maj) == len(p):
                 somete = "chiniso"
         return somete
+
+    #判断老头
+    def Judge_Laotou(maj):
+        laotou = ""
+        l = Dazi_Calc.Maj_GetL(maj)
+        if len(l) == len(maj):
+            z = Dazi_Calc.Maj_GetZ(maj)
+            if not z:
+                laotou = "chinlaotou"
+            else:
+                laotou = "konlaotou"
+        return laotou
+        
       
 
 #负责输入输出的类     
@@ -234,10 +260,14 @@ class Tenpai_Calc:
                     yaku.append("混一色")
                 if somete == "chiniso":
                     han += 6
-                    yaku.append("清一色")         
+                    yaku.append("清一色")
+                laotou = Han_Judge.Judge_Laotou(maj)
+                if laotou == "konlaotou":
+                    han += 2
+                    yaku.append("混老头")
         else:
-            han += 0
-            fu = +0
+            han = 0
+            fu = 0
         if yakuman != []:
             yaku = []
             yaku += yakuman
