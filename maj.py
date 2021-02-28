@@ -4,11 +4,13 @@ yaocyu_list = [1,9,11,19,21,29,31,32,33,34,35,36,37]
 tsu_list = [31,32,33,34,35,36,37]
 #1-9m  11-19s 21-29p 31-34东南西北 35-37中发白
 
-#输入实例
-raw_maj = [2,3,4,4,4,4,5,5,6,6,6,6,7,8]
-print(raw_maj)
+#输入实例，规范化输入由前端完成
+raw_maj = [1,1,2,2,3,3,5,5,6,6,8,8,9]
+income_maj = 9
+print("手牌"+ str(raw_maj))
+print("进张" + str(income_maj))
 
-#数搭子
+#数搭子的库
 class Dazi_Calc:
 
     def Tenpai_Arrange(maj):
@@ -42,7 +44,7 @@ class Dazi_Calc:
                 maj_z.append(num)
         return maj_z
     
-#标出所有雀头位置    
+    #标出所有雀头位置    
     def Maj_GetJyan(maj):
         maj_jyan = []
         lenth = len(maj)
@@ -61,14 +63,11 @@ class Dazi_Calc:
         maj_jyan = [num for num in maj_jyan if num != 99]        
         return maj_jyan
 
-#和了判定
+    #和了判定
     def Maj_Agari(maj):
         maj = Dazi_Calc.Tenpai_Arrange(maj)
         maj_jyan = Dazi_Calc.Maj_GetJyan(maj)
-        #七对判定
-        if len(maj_jyan) == 7:
-           agari = True
-        elif len(maj_jyan) != 0:
+        if len(maj_jyan) != 0:
             for jyan_num in maj_jyan:
                 maj_temp = []
                 maj_temp += maj
@@ -97,6 +96,11 @@ class Dazi_Calc:
                 if not maj_temp:
                     agari = True
                     break
+                
+                #七对判定
+                elif len(maj_jyan) == 7:
+                    agari = True
+
                 #国土判定
                 elif len(maj_jyan) == 1:
                     agari = True
@@ -106,13 +110,75 @@ class Dazi_Calc:
                             break
                 else:
                     agari = False
+            #检查是否存在虚空第五张牌
+            if len(maj) >= 5:
+                lenth =len(maj)
+                for num in range(0,lenth-4):
+                    if maj[num] == maj[num+4]:
+                        agari = False
         else:
             agari = False
         return agari
 
-           
+#番种计算的库
+class Han_Judge:
+    #判断和牌类型
+    def Judge_Type(maj,income):
+        agari_type = "kokushi"
+        maj_jyan = Dazi_Calc.Maj_GetJyan(maj)
+        for num in yaocyu_list:
+            if num not in maj:
+                agari_type = "mentsu"
+                break
+        #国土十三面
+        if agari_type == "kokushi" and maj[maj_jyan[0]] == income:
+            agari_type = "kokushi_13"
+        #七对判定
+        if len(maj_jyan) == 7:
+            agari_type = "7_tai"
+            #七对中剔除两杯口
+            for jyan_num in maj_jyan:
+                maj_temp = []
+                maj_temp += maj
+                maj_temp.remove(maj[jyan_num])
+                maj_temp.remove(maj[jyan_num])
+                lenth = len(maj_temp)
+                for num in range(0,lenth-2):
+                    if maj_temp[num] != 99:
+                        if maj_temp[num] +1 not in maj_temp:
+                            break
+                        if maj_temp[num] + 1 in maj_temp and maj_temp[num] + 2 in maj_temp and maj_temp[num] < 30:
+                            syun_remove = maj_temp[num]
+                            maj_temp.remove(syun_remove)
+                            maj_temp.remove(syun_remove + 1)
+                            maj_temp.remove(syun_remove + 2)
+                            maj_temp.insert(0,99)
+                            maj_temp.insert(0,99)
+                            maj_temp.insert(0,99)
+                maj_temp = [num for num in maj_temp if num != 99]
+                if not maj_temp:
+                    agari_type = "mentsu"
+        return agari_type
+    
+    #判断染手
+    def Judge_Somete(maj):
+        somete = ""
+        z = Dazi_Calc.Maj_GetZ(maj)
+        m = Dazi_Calc.Maj_GetM(maj)
+        s = Dazi_Calc.Maj_GetS(maj)
+        p = Dazi_Calc.Maj_GetP(maj)
+        if len(maj) == len(z):
+            somete = "tsuiso"
+        elif len(maj) == len(z) +len(m) or  len(maj) == len(z) +len(s) or  len(maj) == len(z) +len(p):
+            somete = "koniso"
+            if len(maj) == len(m) or len(maj) == len(s) or len(maj) == len(p):
+                somete = "chiniso"
+        return somete
+      
+
+#负责输入输出的类     
 class Tenpai_Calc:
-#(3n+1)张牌的待张计算
+    #(3n+1)张牌的待张计算
     def Tenpai_Machi(maj):
         machi_list = []
         for num in maj_list:
@@ -123,7 +189,7 @@ class Tenpai_Calc:
                 machi_list.append(num)
         return machi_list
     
-#(3n+2)张牌的何切计算
+    #(3n+2)张牌的何切计算
     def Nani_Giru(maj):
         kire_list = list(set(maj))
         kiru_list = {}
@@ -136,8 +202,57 @@ class Tenpai_Calc:
                 kiru_list[num] = tenpai_list
         return kiru_list
 
+    #算番，maj为待张型，income为待牌
+    def Han_Calc(maj,income):
+        han = 0
+        fu = 20
+        yaku = []
+        yakuman = []
+        maj.append(income)
+        if Dazi_Calc.Maj_Agari(maj) == True:
+            maj = Dazi_Calc.Tenpai_Arrange(maj)
+            agari_type = Han_Judge.Judge_Type(maj,income_maj)
+            if agari_type == "kokushi":
+                han += 1000
+                fu += 5
+                yakuman.append("国士无双")
+                print(yakuman)
+            elif agari_type == "kokushi_13":
+                han += 2000
+                fu += 5
+                yakuman.append("国士无双十三面")
+            elif agari_type == "7_tai":
+                han += 2
+                fu = 25
+                yaku.append("七对子")
+                somete = Han_Judge.Judge_Somete(maj)
+                if somete == "tsuiso":
+                    han += 1000
+                    yakuman.append("字一色")
+                if somete == "koniso":
+                    han += 3
+                    yaku.append("混一色")
+                if somete == "chiniso":
+                    han += 6
+                    yaku.append("清一色")         
+        else:
+            han += 0
+            fu = +0
+        if yakuman != []:
+            yaku = []
+            yaku += yakuman
+        return han,fu,yaku
+        
 
 
-kiru = Tenpai_Calc.Nani_Giru(raw_maj)
 
-print("切牌种类：\n" + str(kiru))
+    
+total = Tenpai_Calc.Han_Calc(raw_maj,income_maj)
+print(total)
+
+#kiru = Tenpai_Calc.Nani_Giru(raw_maj)
+#print(kiru)
+
+
+
+
