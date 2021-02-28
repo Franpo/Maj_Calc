@@ -6,8 +6,10 @@ tsu_list = [31,32,33,34,35,36,37]
 
 
 #输入实例，规范化输入由前端完成
-raw_maj = [1,1,2,2,3,3,4,4,6,6,7,7,9]
+raw_maj = [1,1,1,9]
 income_maj = 9
+#四副露列表，第一个元素代表副露种类，0为无，1为顺子，2为刻子，3为杠，4为暗杠，第二个元素代表副露牌，顺子情况下以顺子起点牌计算
+fulu = {1:[2,11], 2:[2,19], 3:[2,21], 4:[2,29]}
 print("手牌"+ str(raw_maj))
 print("进张" + str(income_maj))
 
@@ -170,34 +172,48 @@ class Han_Judge:
                             maj_temp.insert(0,99)
                 maj_temp = [num for num in maj_temp if num != 99]
                 if not maj_temp:
-                    agari_type = "mentsu"
+                    agari_type = "2_pai"
         return agari_type
     
     #判断染手
-    def Judge_Somete(maj):
+    def Judge_Somete(maj,syun,ko):
         somete = ""
-        z = Dazi_Calc.Maj_GetZ(maj)
-        m = Dazi_Calc.Maj_GetM(maj)
-        s = Dazi_Calc.Maj_GetS(maj)
-        p = Dazi_Calc.Maj_GetP(maj)
-        if len(maj) == len(z):
+        maj_temp = []
+        for num in maj:
+            maj_temp.append(num)
+        for num in syun:
+            maj_temp.append(num)
+        for num in ko:
+            maj_temp.append(num)
+        z = Dazi_Calc.Maj_GetZ(maj_temp)
+        m = Dazi_Calc.Maj_GetM(maj_temp)
+        s = Dazi_Calc.Maj_GetS(maj_temp)
+        p = Dazi_Calc.Maj_GetP(maj_temp)
+        if len(maj_temp) == len(z):
             somete = "tsuiso"
-        elif len(maj) == len(z) +len(m) or  len(maj) == len(z) +len(s) or  len(maj) == len(z) +len(p):
+        elif len(maj_temp) == len(z) +len(m) or  len(maj_temp) == len(z) +len(s) or  len(maj_temp) == len(z) +len(p):
             somete = "koniso"
-            if len(maj) == len(m) or len(maj) == len(s) or len(maj) == len(p):
+            if len(maj_temp) == len(m) or len(maj_temp) == len(s) or len(maj_temp) == len(p):
                 somete = "chiniso"
         return somete
 
     #判断老头
-    def Judge_Laotou(maj):
+    def Judge_Laotou(maj,syun,ko):
         laotou = ""
-        l = Dazi_Calc.Maj_GetL(maj)
-        if len(l) == len(maj):
-            z = Dazi_Calc.Maj_GetZ(maj)
+        maj_temp = []
+        for num in maj:
+            maj_temp.append(num)
+        for num in ko:
+            maj_temp.append(num)
+        l = Dazi_Calc.Maj_GetL(maj_temp)
+        if len(l) == len(maj_temp):
+            z = Dazi_Calc.Maj_GetZ(maj_temp)
             if not z:
                 laotou = "chinlaotou"
             else:
                 laotou = "konlaotou"
+        if syun != []:
+            laotou = ""
         return laotou
         
       
@@ -229,7 +245,7 @@ class Tenpai_Calc:
         return kiru_list
 
     #算番，maj为待张型，income为待牌
-    def Han_Calc(maj,income):
+    def Han_Calc(maj,income,fulu):
         han = 0
         fu = 20
         yaku = []
@@ -265,6 +281,52 @@ class Tenpai_Calc:
                 if laotou == "konlaotou":
                     han += 2
                     yaku.append("混老头")
+            else:
+                syun = []
+                ko = []                
+                #门清判定，副露注册
+                menchin = True
+                for n in range(1,5):
+                    fulu_temp = fulu[n]
+                    if fulu_temp[0] == 1:
+                        syun.append(fulu_temp[1])
+                        menchin = False
+                    elif fulu_temp[0] == 2:
+                        ko.append(fulu_temp[1])
+                        menchin = False
+                    elif fulu_temp[0] == 3:
+                        ko.append(fulu_temp[1])
+                        menchin = False
+                    elif fulu_temp[0] == 4:
+                        ko.append(fulu_temp[1])
+                print("副露顺子(起点)" + str(syun), "副露刻子" + str(ko), "门清" + str(menchin))
+                if agari_type == "2_pai" and menchin == True:
+                    han += 3
+                    yaku.append("二杯口")
+                somete = Han_Judge.Judge_Somete(maj,syun,ko)
+                if somete == "tsuiso":
+                    han += 1000
+                    yakuman.append("字一色")
+                if somete == "koniso":
+                    if menchin == True:
+                        han += 3
+                    else:
+                        han += 2
+                    yaku.append("混一色")
+                if somete == "chiniso":
+                    if menchin == True:
+                        han += 6
+                    else:
+                        han += 5
+                    yaku.append("清一色")
+                laotou = Han_Judge.Judge_Laotou(maj,syun,ko)
+                if laotou == "konlaotou":
+                    han += 2
+                    yaku.append("混老头")
+                if laotou == "chinlaotou":
+                    han += 1000
+                    yakuman.append("清老头")
+                             
         else:
             han = 0
             fu = 0
@@ -277,7 +339,7 @@ class Tenpai_Calc:
 
 
     
-total = Tenpai_Calc.Han_Calc(raw_maj,income_maj)
+total = Tenpai_Calc.Han_Calc(raw_maj,income_maj,fulu)
 print(total)
 
 #kiru = Tenpai_Calc.Nani_Giru(raw_maj)
