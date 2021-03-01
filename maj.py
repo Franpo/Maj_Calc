@@ -7,12 +7,14 @@ ryu_list = [12,13,14,16,18,36]
 
 
 #输入实例，规范化输入由前端完成
-raw_maj = [2,2,3,3,4,4,5,12,12,13,13,14,14]
+raw_maj = [3,3,3,4,4,5,5]
 income_maj = 5
+tsumo = True
 #四副露列表，第一个元素代表副露种类，0为无，1为顺子，2为刻子，3为杠，4为暗杠，第二个元素代表副露牌，顺子情况下以顺子起点牌计算
-fulu = {1:[0,0], 2:[0,0], 3:[0,0], 4:[0,0]}
+fulu = {1:[0,0], 2:[0,0], 3:[4,7], 4:[4,8]}
 print("手牌"+ str(raw_maj))
 print("进张" + str(income_maj))
+print("自摸" + str(tsumo)) 
 
 
 
@@ -266,6 +268,32 @@ class Han_Judge:
         if len(list(set(syun))) != len(syun) and agari_type != "2_pai" and menchin == True:
             pai = True
         return pai
+    
+    #判断对对和
+    def Judge_Taitai(ko):
+        taitai = False
+        if len(ko) == 4:
+            taitai = True
+        return taitai
+    #判断暗刻
+    def Judge_Anko(ko,fulu_ko,ankan,income,tsumo):
+        anko_type = ""
+        anko = 0
+        if len(ko) >= 3:
+            anko = len(ko) - len(fulu_ko) + len(ankan)
+            if not tsumo and income in ko:
+                anko -= 1
+            print(anko)
+            if anko == 3:
+                anko_type = "sananko"
+            if anko == 4:
+                if income in ko:
+                    anko_type = "suanko"
+                else:
+                    anko_type = "4_tan"
+                    
+        return anko_type
+            
             
 
 #负责输入输出的类     
@@ -295,7 +323,7 @@ class Tenpai_Calc:
         return kiru_list
 
     #算番，maj为待张型，income为待牌
-    def Han_Calc(maj,income,fulu):
+    def Han_Calc(maj,income,fulu,tsumo):
         han = 0
         fu = 20
         yaku = []
@@ -335,6 +363,7 @@ class Tenpai_Calc:
                 syun = []
                 ko = []
                 kan = []
+                ankan = []
                 #门清判定，副露注册
                 menchin = True
                 for n in range(1,5):
@@ -352,6 +381,7 @@ class Tenpai_Calc:
                     elif fulu_temp[0] == 4:
                         ko.append(fulu_temp[1])
                         kan.append(fulu_temp[1])
+                        ankan.append(fulu_temp[1])
                 print("副露顺子(起点)" + str(syun), "副露刻子" + str(ko), "其中杠为" + str(kan),"门清" + str(menchin))
                 #所有牌种类带来的加番写在这里
                 if agari_type == "2_pai" and menchin == True:
@@ -398,7 +428,7 @@ class Tenpai_Calc:
                 #同一组牌选取不同牌为雀头时，可能出现符数和番数变化，取最高者
                 han_temp_higher = 0
                 fu_temp_higher = 0
-                yaku_temp = []
+                yaku_temp_higher = []
                 yakuman_temp_higher = []
                 
                 #仿和了判定，穷举雀头
@@ -447,6 +477,19 @@ class Tenpai_Calc:
                         if Han_Judge.Judge_1pai(syun_temp,menchin,agari_type) == True:
                             han_temp += 1
                             yaku_temp.append("一杯口")
+                        if Han_Judge.Judge_Taitai(ko_temp) == True:
+                            han_temp += 2
+                            yaku_temp.append("对对和")
+                        anko = Han_Judge.Judge_Anko(ko_temp,ko,ankan,income,tsumo)
+                        if anko == "sananko":
+                            han_temp += 2
+                            yaku_temp.append("三暗刻")
+                        if anko == "suanko":
+                            han_temp += 1000
+                            yakuman_temp.append("四暗刻")
+                        if anko == "4_tan":
+                            han_temp += 2000
+                            yakuman_temp.append("四暗刻单骑")
                             
                         #选取番数最高的一面返回
                         if han_temp > han_temp_higher:
@@ -454,7 +497,6 @@ class Tenpai_Calc:
                             fu_temp_higher = fu_temp
                             yaku_temp_higher = yaku_temp
                             yakuman_temp_higher = yakuman_temp
-                            print(yaku_temp_higher)
                 #结算拆解番符
                 han += han_temp_higher
                 fu += fu_temp_higher
@@ -474,7 +516,7 @@ class Tenpai_Calc:
 
 
     
-total = Tenpai_Calc.Han_Calc(raw_maj,income_maj,fulu)
+total = Tenpai_Calc.Han_Calc(raw_maj,income_maj,fulu,tsumo)
 print(total)
 
 #kiru = Tenpai_Calc.Nani_Giru(raw_maj)
