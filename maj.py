@@ -2,14 +2,15 @@
 maj_list = [1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18,19,21,22,23,24,25,26,27,28,29,31,32,33,34,35,36,37]
 yaocyu_list = [1,9,11,19,21,29,31,32,33,34,35,36,37]
 tsu_list = [31,32,33,34,35,36,37]
+ryu_list = [12,13,14,16,18,36]
 #1-9m  11-19s 21-29p 31-34东南西北 35-37中发白
 
 
 #输入实例，规范化输入由前端完成
-raw_maj = [1,1,1,9]
-income_maj = 9
+raw_maj = [2,2,2,4]
+income_maj = 4
 #四副露列表，第一个元素代表副露种类，0为无，1为顺子，2为刻子，3为杠，4为暗杠，第二个元素代表副露牌，顺子情况下以顺子起点牌计算
-fulu = {1:[2,11], 2:[2,19], 3:[2,21], 4:[2,29]}
+fulu = {1:[1,12], 2:[1,12], 3:[2,18], 4:[2,16]}
 print("手牌"+ str(raw_maj))
 print("进张" + str(income_maj))
 
@@ -58,6 +59,14 @@ class Dazi_Calc:
             if num in yaocyu_list:
                 maj_l.append(num)
         return maj_l
+    
+    #绿一色
+    def Maj_GetRyu(maj):
+        maj_r = []
+        for num in maj:
+            if num in ryu_list:
+                maj_r.append(num)
+        return maj_r
     
     #标出所有雀头位置    
     def Maj_GetJyan(maj):
@@ -215,6 +224,43 @@ class Han_Judge:
         if syun != []:
             laotou = ""
         return laotou
+    
+    #判断绿一色
+    def Judge_Ryu(maj,syun,ko):
+        maj_temp = []
+        for num in maj:
+            maj_temp.append(num)
+        for num in ko:
+            maj_temp.append(num)
+        for num in syun:
+            maj_temp.append(num)
+            maj_temp.append(num+1)
+            maj_temp.append(num+2)
+        ryu = Dazi_Calc.Maj_GetRyu(maj_temp)
+        if len(ryu) == len(maj_temp):
+            return True
+        else:
+            return False
+        
+    #判断断幺
+    def Judge_Tanyao(maj,syun,ko):
+        maj_temp = []
+        tanyao = True
+        for num in maj:
+            maj_temp.append(num)
+        for num in ko:
+            maj_temp.append(num)
+        for num in syun:
+            maj_temp.append(num)
+            maj_temp.append(num+1)
+            maj_temp.append(num+2)
+        for num in maj_temp:
+            if num in yaocyu_list:
+                tanyao = False
+                break
+        return tanyao
+            
+        
         
       
 
@@ -326,7 +372,14 @@ class Tenpai_Calc:
                 if laotou == "chinlaotou":
                     han += 1000
                     yakuman.append("清老头")
-                             
+                if somete == "koniso" or somete == "chiniso":
+                    if Han_Judge.Judge_Ryu(maj,syun,ko) == True:
+                        han += 1000
+                        yakuman.append("绿一色")
+                if Han_Judge.Judge_Tanyao(maj,syun,ko) == True:
+                    #if menchin == True:   食断
+                        han +=1
+                        yaku.append("断幺九")                  
         else:
             han = 0
             fu = 0
