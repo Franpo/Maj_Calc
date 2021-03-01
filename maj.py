@@ -7,10 +7,10 @@ ryu_list = [12,13,14,16,18,36]
 
 
 #输入实例，规范化输入由前端完成
-raw_maj = [2,2,2,4]
-income_maj = 3
+raw_maj = [2,2,3,3,4,4,5,12,12,13,13,14,14]
+income_maj = 5
 #四副露列表，第一个元素代表副露种类，0为无，1为顺子，2为刻子，3为杠，4为暗杠，第二个元素代表副露牌，顺子情况下以顺子起点牌计算
-fulu = {1:[0,0], 2:[4,9], 3:[4,34], 4:[4,35]}
+fulu = {1:[0,0], 2:[0,0], 3:[0,0], 4:[0,0]}
 print("手牌"+ str(raw_maj))
 print("进张" + str(income_maj))
 
@@ -296,7 +296,7 @@ class Tenpai_Calc:
         maj.append(income)
         if Dazi_Calc.Maj_Agari(maj) == True:
             maj = Dazi_Calc.Tenpai_Arrange(maj)
-            agari_type = Han_Judge.Judge_Type(maj,income_maj)
+            agari_type = Han_Judge.Judge_Type(maj,income)
             if agari_type == "kokushi":
                 han += 1000
                 fu += 5
@@ -346,6 +346,7 @@ class Tenpai_Calc:
                         ko.append(fulu_temp[1])
                         kan.append(fulu_temp[1])
                 print("副露顺子(起点)" + str(syun), "副露刻子" + str(ko), "其中杠为" + str(kan),"门清" + str(menchin))
+                #所有牌种类带来的加番写在这里
                 if agari_type == "2_pai" and menchin == True:
                     han += 3
                     yaku.append("二杯口")
@@ -386,6 +387,68 @@ class Tenpai_Calc:
                 if len(kan) == 4:
                     han += 1000
                     yakuman.append("四杠子")
+
+                #同一组牌选取不同牌为雀头时，可能出现符数和番数变化，取最高者
+                han_temp_higher = 0
+                fu_temp_higher = 0
+                yaku_temp = []
+                yakuman_temp_higher = []
+                
+                #仿和了判定，穷举雀头
+                maj_jyan = Dazi_Calc.Maj_GetJyan(maj)
+                for num in maj_jyan:
+                    jyan_temp = maj[num]
+                    maj_temp = []
+                    maj_temp += maj
+                    maj_temp.remove(maj[num])
+                    maj_temp.remove(maj[num])
+                    lenth = len(maj_temp)
+                    syun_temp = []
+                    ko_temp = []
+                    syun_temp += syun
+                    ko_temp += ko
+                    for num in range(0,lenth-2):
+                        #照和了判定抄的，这算番模块也太长了orz
+                        if maj_temp[num] != 99:
+                            if maj_temp[num] != maj_temp[num+1] and maj_temp[num] +1 not in maj_temp:
+                                break
+                            if maj_temp[num] == maj_temp[num+1] and maj_temp[num] == maj_temp[num+2]:
+                                ko_temp.append(maj_temp[num])
+                                maj_temp[num] = 99
+                                maj_temp[num+1] = 99
+                                maj_temp[num+2] = 99
+                            if maj_temp[num] + 1 in maj_temp and maj_temp[num] + 2 in maj_temp and maj_temp[num] < 30:
+                                syun_remove = maj_temp[num]
+                                syun_temp.append(maj_temp[num])
+                                maj_temp.remove(syun_remove)
+                                maj_temp.remove(syun_remove + 1)
+                                maj_temp.remove(syun_remove + 2)
+                                maj_temp.insert(0,99)
+                                maj_temp.insert(0,99)
+                                maj_temp.insert(0,99)
+                    maj_temp = [num for num in maj_temp if num != 99]
+                    han_temp = 0
+                    fu_temp = 0
+                    yaku_temp = []
+                    yakuman_temp = []
+                    if not maj_temp:
+                        #所有面子引发的加番写在这里
+                        if len(syun_temp) == 4 and menchin == True:
+                            if income in syun_temp or income -2 in syun_temp:
+                                han_temp +=1
+                                yaku_temp.append("平胡")
+                        #选取番数最高的一面返回
+                        if han_temp > han_temp_higher:
+                            han_temp_higher = han_temp
+                            fu_temp_higher = fu_temp
+                            yaku_temp_higher = yaku_temp
+                            yakuman_temp_higher = yakuman_temp
+                #结算拆解番符
+                han += han_temp_higher
+                fu += fu_temp_higher
+                yaku += yaku_temp_higher
+                yakuman += yakuman_temp_higher
+       
                 
         else:
             han = 0
