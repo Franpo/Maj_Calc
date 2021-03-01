@@ -8,9 +8,9 @@ ryu_list = [12,13,14,16,18,36]
 
 #输入实例，规范化输入由前端完成
 raw_maj = [2,2,2,4]
-income_maj = 4
+income_maj = 3
 #四副露列表，第一个元素代表副露种类，0为无，1为顺子，2为刻子，3为杠，4为暗杠，第二个元素代表副露牌，顺子情况下以顺子起点牌计算
-fulu = {1:[1,12], 2:[1,12], 3:[2,18], 4:[2,16]}
+fulu = {1:[0,0], 2:[4,9], 3:[4,34], 4:[4,35]}
 print("手牌"+ str(raw_maj))
 print("进张" + str(income_maj))
 
@@ -260,9 +260,6 @@ class Han_Judge:
                 break
         return tanyao
             
-        
-        
-      
 
 #负责输入输出的类     
 class Tenpai_Calc:
@@ -329,7 +326,8 @@ class Tenpai_Calc:
                     yaku.append("混老头")
             else:
                 syun = []
-                ko = []                
+                ko = []
+                kan = []
                 #门清判定，副露注册
                 menchin = True
                 for n in range(1,5):
@@ -342,10 +340,12 @@ class Tenpai_Calc:
                         menchin = False
                     elif fulu_temp[0] == 3:
                         ko.append(fulu_temp[1])
+                        kan.append(fulu_temp[1])
                         menchin = False
                     elif fulu_temp[0] == 4:
                         ko.append(fulu_temp[1])
-                print("副露顺子(起点)" + str(syun), "副露刻子" + str(ko), "门清" + str(menchin))
+                        kan.append(fulu_temp[1])
+                print("副露顺子(起点)" + str(syun), "副露刻子" + str(ko), "其中杠为" + str(kan),"门清" + str(menchin))
                 if agari_type == "2_pai" and menchin == True:
                     han += 3
                     yaku.append("二杯口")
@@ -379,7 +379,14 @@ class Tenpai_Calc:
                 if Han_Judge.Judge_Tanyao(maj,syun,ko) == True:
                     #if menchin == True:   食断
                         han +=1
-                        yaku.append("断幺九")                  
+                        yaku.append("断幺九")
+                if len(kan) == 3:
+                    han += 2
+                    yaku.append("三杠子")
+                if len(kan) == 4:
+                    han += 1000
+                    yakuman.append("四杠子")
+                
         else:
             han = 0
             fu = 0
