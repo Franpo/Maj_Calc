@@ -259,6 +259,13 @@ class Han_Judge:
                 tanyao = False
                 break
         return tanyao
+
+    #判断一杯口
+    def Judge_1pai(syun,menchin,agari_type):
+        pai = False
+        if len(list(set(syun))) != len(syun) and agari_type != "2_pai" and menchin == True:
+            pai = True
+        return pai
             
 
 #负责输入输出的类     
@@ -408,7 +415,7 @@ class Tenpai_Calc:
                     syun_temp += syun
                     ko_temp += ko
                     for num in range(0,lenth-2):
-                        #照和了判定抄的，这算番模块也太长了orz
+                        #照和了判定抄的，懒得模块化了，这也太长了orz
                         if maj_temp[num] != 99:
                             if maj_temp[num] != maj_temp[num+1] and maj_temp[num] +1 not in maj_temp:
                                 break
@@ -437,12 +444,17 @@ class Tenpai_Calc:
                             if income in syun_temp or income -2 in syun_temp:
                                 han_temp +=1
                                 yaku_temp.append("平胡")
+                        if Han_Judge.Judge_1pai(syun_temp,menchin,agari_type) == True:
+                            han_temp += 1
+                            yaku_temp.append("一杯口")
+                            
                         #选取番数最高的一面返回
                         if han_temp > han_temp_higher:
                             han_temp_higher = han_temp
                             fu_temp_higher = fu_temp
                             yaku_temp_higher = yaku_temp
                             yakuman_temp_higher = yakuman_temp
+                            print(yaku_temp_higher)
                 #结算拆解番符
                 han += han_temp_higher
                 fu += fu_temp_higher
