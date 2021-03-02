@@ -7,13 +7,13 @@ ryu_list = [12,13,14,16,18,36]
 
 
 #输入实例，规范化输入由前端完成
-raw_maj = [15,37,37,37]
-income_maj = 15
+raw_maj = [3,4,5,14,14,14,15,16,17,18,18,19,19]
+income_maj = 17
 tsumo = True
 weather = 31
 menfu = 31
 #四副露列表，第一个元素代表副露种类，0为无，1为顺子，2为刻子，3为杠，4为暗杠，第二个元素代表副露牌，顺子情况下以顺子起点牌计算
-fulu = {1:[1,1], 2:[1,11], 3:[1,21], 4:[0,0]}
+fulu = {1:[0,0], 2:[0,0], 3:[0,0], 4:[0,0]}
 
 print("手牌"+ str(raw_maj))
 print("进张" + str(income_maj))
@@ -542,9 +542,17 @@ class Tenpai_Calc:
                     if not maj_temp:
                         #所有面子引发的加番写在这里
                         if len(syun_temp) == 4 and menchin == True and jyan_temp != weather and jyan_temp != menfu:
-                            if income in syun_temp or income -2 in syun_temp:
-                                han_temp +=1
-                                yaku_temp.append("平胡")
+                            for num in syun_temp:
+                                if income == num or income -2 == num:
+                                    #12居然不听0，麻将，很奇妙吧
+                                    if num in [1,1,21] and income in [3,13,23]:
+                                        None
+                                    elif num in [7,17,27] and income in [7,17,27]:
+                                        None
+                                    else:
+                                        han_temp +=1
+                                        yaku_temp.append("平和")
+                                        break
                         if Han_Judge.Judge_1pai(syun_temp,menchin,agari_type) == True:
                             han_temp += 1
                             yaku_temp.append("一杯口")
