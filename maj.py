@@ -7,14 +7,19 @@ ryu_list = [12,13,14,16,18,36]
 
 
 #输入实例，规范化输入由前端完成
-raw_maj = [3,3,3,4,4,5,5]
+raw_maj = [2,2,3,3,4,4,5,31,31,31,32,32,32]
 income_maj = 5
 tsumo = True
+weather = 31
+menfu = 31
 #四副露列表，第一个元素代表副露种类，0为无，1为顺子，2为刻子，3为杠，4为暗杠，第二个元素代表副露牌，顺子情况下以顺子起点牌计算
-fulu = {1:[0,0], 2:[0,0], 3:[4,7], 4:[4,8]}
+fulu = {1:[0,0], 2:[0,0], 3:[0,0], 4:[0,0]}
+
 print("手牌"+ str(raw_maj))
 print("进张" + str(income_maj))
-print("自摸" + str(tsumo)) 
+print("自摸" + str(tsumo))
+print("场风" + str(weather))
+print("自风" + str(weather))
 
 
 
@@ -275,6 +280,7 @@ class Han_Judge:
         if len(ko) == 4:
             taitai = True
         return taitai
+    
     #判断暗刻
     def Judge_Anko(ko,fulu_ko,ankan,income,tsumo):
         anko_type = ""
@@ -290,9 +296,38 @@ class Han_Judge:
                 if income in ko:
                     anko_type = "suanko"
                 else:
-                    anko_type = "4_tan"
-                    
+                    anko_type = "4_tan"      
         return anko_type
+    
+    #判断场风役
+    def Judge_Weather(ko,weather):
+        weatheryaku = ""
+        if weather in ko:
+            weatheryaku += "场风："
+            if weather == 31:
+                weatheryaku += "东"
+            if weather == 32:
+                weatheryaku += "南"
+            if weather == 33:
+                weatheryaku += "西"
+            if weather == 34:
+                weatheryaku += "北"
+        return weatheryaku
+    
+    #判断门风役
+    def Judge_Menfu(ko,menfu):
+        menfuyaku = ""
+        if menfu in ko:
+            menfuyaku += "门风："
+            if menfu == 31:
+                menfuyaku += "东"
+            if menfu == 32:
+                menfuyaku += "南"
+            if menfu == 33:
+                menfuyaku += "西"
+            if menfu == 34:
+                menfuyaku += "北"
+        return menfuyaku
             
             
 
@@ -323,7 +358,7 @@ class Tenpai_Calc:
         return kiru_list
 
     #算番，maj为待张型，income为待牌
-    def Han_Calc(maj,income,fulu,tsumo):
+    def Han_Calc(maj,income,fulu,tsumo,weather,menfu):
         han = 0
         fu = 20
         yaku = []
@@ -470,7 +505,7 @@ class Tenpai_Calc:
                     yakuman_temp = []
                     if not maj_temp:
                         #所有面子引发的加番写在这里
-                        if len(syun_temp) == 4 and menchin == True:
+                        if len(syun_temp) == 4 and menchin == True and jyan_temp != weather and jyan_temp != menfu:
                             if income in syun_temp or income -2 in syun_temp:
                                 han_temp +=1
                                 yaku_temp.append("平胡")
@@ -490,6 +525,18 @@ class Tenpai_Calc:
                         if anko == "4_tan":
                             han_temp += 2000
                             yakuman_temp.append("四暗刻单骑")
+                        #门风场风判定
+                        weatheryaku = Han_Judge.Judge_Weather(ko_temp,weather)
+                        if weatheryaku != "":
+                            han_temp += 1
+                            yaku_temp.append(weatheryaku)
+                        menfuyaku = Han_Judge.Judge_Menfu(ko_temp,menfu)
+                        if menfuyaku != "":
+                            han_temp += 1
+                            yaku_temp.append(menfuyaku)
+                        #
+
+
                             
                         #选取番数最高的一面返回
                         if han_temp > han_temp_higher:
@@ -516,7 +563,7 @@ class Tenpai_Calc:
 
 
     
-total = Tenpai_Calc.Han_Calc(raw_maj,income_maj,fulu,tsumo)
+total = Tenpai_Calc.Han_Calc(raw_maj,income_maj,fulu,tsumo,weather,menfu)
 print(total)
 
 #kiru = Tenpai_Calc.Nani_Giru(raw_maj)
