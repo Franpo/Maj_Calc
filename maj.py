@@ -7,13 +7,13 @@ ryu_list = [12,13,14,16,18,36]
 
 
 #输入实例，规范化输入由前端完成
-raw_maj = [2,2,2,3,3,3,37]
-income_maj = 37
+raw_maj = [15,37,37,37]
+income_maj = 15
 tsumo = True
 weather = 31
 menfu = 31
 #四副露列表，第一个元素代表副露种类，0为无，1为顺子，2为刻子，3为杠，4为暗杠，第二个元素代表副露牌，顺子情况下以顺子起点牌计算
-fulu = {1:[2,35], 2:[2,36], 3:[0,0], 4:[0,0]}
+fulu = {1:[1,1], 2:[1,11], 3:[1,21], 4:[0,0]}
 
 print("手牌"+ str(raw_maj))
 print("进张" + str(income_maj))
@@ -355,6 +355,16 @@ class Han_Judge:
         elif 36 in ko and 37 in ko and jyan == 35:
             sangen = "syou"
         return sangen
+    
+    #判断三色同顺
+    def Judge_Sansyoku(syun):
+        sansyoku = False
+        syun = Dazi_Calc.Tenpai_Arrange(syun)
+        for num in syun:
+            if num + 10 in syun and num + 20 in syun:
+                sansyoku = True
+                break
+        return sansyoku
                        
 
 #负责输入输出的类     
@@ -587,6 +597,13 @@ class Tenpai_Calc:
                         if sangen == "dai":
                             han_temp += 1000
                             yakuman_temp.append("大三元")
+                        #三色同顺判定
+                        if Han_Judge.Judge_Sansyoku(syun_temp) == True:
+                            if menchin == True:
+                                han_temp += 2
+                            else:
+                                han_temp += 1
+                            yaku_temp.append("三色同顺")
                             
                         #选取番数最高的一面返回
                         if han_temp > han_temp_higher:
