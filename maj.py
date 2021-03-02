@@ -7,13 +7,13 @@ ryu_list = [12,13,14,16,18,36]
 
 
 #输入实例，规范化输入由前端完成
-raw_maj = [2,2,3,3,4,4,5,31,31,31,32,32,32]
-income_maj = 5
+raw_maj = [2,2,2,3,3,3,37]
+income_maj = 37
 tsumo = True
 weather = 31
 menfu = 31
 #四副露列表，第一个元素代表副露种类，0为无，1为顺子，2为刻子，3为杠，4为暗杠，第二个元素代表副露牌，顺子情况下以顺子起点牌计算
-fulu = {1:[0,0], 2:[0,0], 3:[0,0], 4:[0,0]}
+fulu = {1:[2,35], 2:[2,36], 3:[0,0], 4:[0,0]}
 
 print("手牌"+ str(raw_maj))
 print("进张" + str(income_maj))
@@ -289,7 +289,6 @@ class Han_Judge:
             anko = len(ko) - len(fulu_ko) + len(ankan)
             if not tsumo and income in ko:
                 anko -= 1
-            print(anko)
             if anko == 3:
                 anko_type = "sananko"
             if anko == 4:
@@ -328,8 +327,35 @@ class Han_Judge:
             if menfu == 34:
                 menfuyaku += "北"
         return menfuyaku
-            
-            
+    
+    #判断四喜和
+    def Judge_Sushi(ko,jyan):
+        sushi = ""
+        if 31 in ko and 32 in ko and 33 in ko and 34 in ko:
+            sushi = "dai"
+        elif 31 in ko and 32 in ko and 33 in ko and jyan == 34:
+            sushi = "syou"
+        elif 31 in ko and 32 in ko and 34 in ko and jyan == 33:
+            sushi = "syou"
+        elif 31 in ko and 33 in ko and 34 in ko and jyan == 32:
+            sushi = "syou"
+        elif 32 in ko and 33 in ko and 34 in ko and jyan == 31:
+            sushi = "syou"
+        return sushi
+    
+    #判断三元和
+    def Judge_Sangen(ko,jyan):
+        sangen = ""
+        if 35 in ko and 36 in ko and 37 in ko:
+            sangen = "dai"
+        elif 35 in ko and 36 in ko and jyan == 37:
+            sangen = "syou"
+        elif 35 in ko and 37 in ko and jyan == 36:
+            sangen = "syou"
+        elif 36 in ko and 37 in ko and jyan == 35:
+            sangen = "syou"
+        return sangen
+                       
 
 #负责输入输出的类     
 class Tenpai_Calc:
@@ -515,6 +541,7 @@ class Tenpai_Calc:
                         if Han_Judge.Judge_Taitai(ko_temp) == True:
                             han_temp += 2
                             yaku_temp.append("对对和")
+                        #暗刻型判定
                         anko = Han_Judge.Judge_Anko(ko_temp,ko,ankan,income,tsumo)
                         if anko == "sananko":
                             han_temp += 2
@@ -534,9 +561,32 @@ class Tenpai_Calc:
                         if menfuyaku != "":
                             han_temp += 1
                             yaku_temp.append(menfuyaku)
-                        #
-
-
+                        #四喜和判定
+                        sushi = Han_Judge.Judge_Sushi(ko_temp,jyan_temp)
+                        if sushi == "syou":
+                            han_temp += 1000
+                            yakuman_temp.append("小四喜")
+                        if sushi == "dai":
+                            han_temp += 2000
+                            yakuman_temp.append("大四喜")
+                        #役牌判定
+                        if 35 in ko_temp:
+                            han_temp += 1
+                            yaku_temp.append("役牌：中")
+                        if 36 in ko_temp:
+                            han_temp += 1
+                            yaku_temp.append("役牌：发")
+                        if 37 in ko_temp:
+                            han_temp += 1
+                            yaku_temp.append("役牌：白")
+                        #三元和判定
+                        sangen = Han_Judge.Judge_Sangen(ko_temp,jyan_temp)
+                        if sangen == "syou":
+                            han_temp += 2
+                            yaku_temp.append("小三元")
+                        if sangen == "dai":
+                            han_temp += 1000
+                            yakuman_temp.append("大三元")
                             
                         #选取番数最高的一面返回
                         if han_temp > han_temp_higher:
