@@ -7,8 +7,8 @@ ryu_list = [12,13,14,16,18,36]
 
 
 #输入实例，规范化输入由前端完成
-raw_maj = [3,4,5,14,14,14,15,16,17,18,18,19,19]
-income_maj = 17
+raw_maj = [1,1,1,2,3,4,5,6,7,8,9,9,9]
+income_maj = 2
 tsumo = True
 weather = 31
 menfu = 31
@@ -267,6 +267,22 @@ class Han_Judge:
                 break
         return tanyao
 
+    #判断九莲
+    def Judge_Cyuren(maj,income):
+        cyuren = ""
+        for num in maj:
+            maj_temp =[]
+            maj_temp += maj
+            maj_temp.remove(num)
+            if len(Tenpai_Calc.Tenpai_Machi(maj_temp)) == 9:
+                maj.remove(income)
+                if len(Tenpai_Calc.Tenpai_Machi(maj)) == 9:
+                    cyuren = "cyuren_9"
+                else:
+                    cyuren = "cyuren"
+                break
+        return cyuren 
+
     #判断一杯口
     def Judge_1pai(syun,menchin,agari_type):
         pai = False
@@ -365,6 +381,39 @@ class Han_Judge:
                 sansyoku = True
                 break
         return sansyoku
+
+    #判断三色同刻
+    def Judge_Douko(ko):
+        douko = False
+        ko = Dazi_Calc.Tenpai_Arrange(ko)
+        for num in ko:
+            if num + 10 in ko and num + 20 in ko and num + 20 < 30:
+                douko = True
+                break
+        return douko
+    
+    #判断全带幺
+    def Judge_Cyanta(syun,ko,jyan):
+        cyanta = "jyuncyan"
+        for num in syun:
+            if num not in [1,7,11,17,21,27]:
+                cyanta = ""
+                break
+        for num in ko:
+            if num not in [1,9,11,19,21,29,31,32,33,34,35,36,37]:
+                cyanta = ""
+                break
+        if jyan not in [1,9,11,19,21,29,31,32,33,34,35,36,37]:
+            cyanta = ""
+        if cyanta == "jyuncyan":
+            for num in ko:
+                if num in [31,32,33,34,35,36,37]:
+                    cyanta = "cyanta"
+                    break
+            if jyan in [31,32,33,34,35,36,37]:
+                cyanta = "cyanta"
+        return cyanta
+        
                        
 
 #负责输入输出的类     
@@ -487,8 +536,15 @@ class Tenpai_Calc:
                         yakuman.append("绿一色")
                 if Han_Judge.Judge_Tanyao(maj,syun,ko) == True:
                     #if menchin == True:   食断
-                        han +=1
+                        han += 1
                         yaku.append("断幺九")
+                cyuren = Han_Judge.Judge_Cyuren(maj,income)
+                if cyuren == "cyuren":
+                    han += 1000
+                    yakuman.append("九莲宝灯")
+                if cyuren == "cyuren_9":
+                    han += 2000
+                    yakuman.append("纯正九莲宝灯")
                 if len(kan) == 3:
                     han += 2
                     yaku.append("三杠子")
@@ -612,6 +668,28 @@ class Tenpai_Calc:
                             else:
                                 han_temp += 1
                             yaku_temp.append("三色同顺")
+                        #三色同刻判定
+                        if Han_Judge.Judge_Douko(ko_temp) == True:
+                            han_temp +=2
+                            yaku_temp.append("三色同刻")
+                        #沙雕役判定
+                        cyanta = Han_Judge.Judge_Cyanta(syun_temp,ko_temp,jyan_temp)
+                        if cyanta == "cyanta":
+                            if laotou != "konlaotou":
+                                if menchin == True:
+                                    han_temp += 2
+                                else:
+                                    han_temp += 1
+                                yaku_temp.append("混全带幺九")
+                        if cyanta == "jyuncyan":
+                            #这种奇怪的判定真的有必要写吗
+                            if laotou != "chinlaotou":
+                                if menchin == True:
+                                    han_temp += 3
+                                else:
+                                    han_temp += 2
+                                yaku_temp.append("纯全带幺九")
+                            
                             
                         #选取番数最高的一面返回
                         if han_temp > han_temp_higher:
