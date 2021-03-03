@@ -7,13 +7,13 @@ ryu_list = [12,13,14,16,18,36]
 
 
 #输入实例，规范化输入由前端完成。必须传入的字典包含：一副手牌，进张牌，场风，自风。以及副露以字典形式传入。可能的信息以列表形式传入，如天和，立直，自摸，一发，海底捞等
-raw_maj = [2,3,4,4,4,4,5,6,6,6,6,7,8]
-income_maj = 5
-tsumo = True
+raw_maj = [35,35,36,36]
+income_maj = 35
+tsumo = False
 weather = 31
 menfu = 31
 #四副露列表，第一个元素代表副露种类，0为无，1为顺子，2为刻子，3为杠，4为暗杠，第二个元素代表副露牌，顺子情况下以顺子起点牌计算
-fulu = {1:[0,0], 2:[0,0], 3:[0,0], 4:[0,0]}
+fulu = {1:[2,11], 2:[3,19], 3:[4,22], 4:[0,0]}
 
 print("手牌"+ str(raw_maj))
 print("进张" + str(income_maj))
@@ -689,7 +689,44 @@ class Tenpai_Calc:
                                 else:
                                     han_temp += 2
                                 yaku_temp.append("纯全带幺九")
-                            
+                        #算符
+                        print(jyan_temp,income,ko_temp,ko,kan,ankan)
+                        anko_count = [num for num in ko_temp if num not in ko]
+                        if income in anko_count and tsumo == False:
+                            anko_count.remove(income)
+                        meiko_count = []
+                        for num in ko_temp:
+                            if num not in anko_count and num not in kan:
+                                meiko_count.append(num)
+                        ankan_count = ankan
+                        meikan_count = [num for num in kan if num not in ankan]
+                        #刻杠加符
+                        for num in anko_count:
+                            if num in yaocyu_list:
+                                fu_temp += 8
+                            else:
+                                fu_temp += 4
+                        for num in meiko_count:
+                            if num in yaocyu_list:
+                                fu_temp += 4
+                            else:
+                                fu_temp += 2
+                        for num in ankan_count:
+                            if num in yaocyu_list:
+                                fu_temp += 32
+                            else:
+                                fu_temp += 16
+                        for num in meikan_count:
+                            if num in yaocyu_list:
+                                fu_temp += 16
+                            else:
+                                fu_temp += 8
+                        if income == jyan_temp:
+                            fu_temp += 2
+                        if tsumo == False and menchin == True:
+                            fu_temp +=10
+                        if tsumo == True and "平和" not in yaku_temp:
+                            fu_temp += 2
                             
                         #选取番数最高的一面返回
                         if han_temp > han_temp_higher:
