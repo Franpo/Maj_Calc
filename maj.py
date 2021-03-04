@@ -447,7 +447,6 @@ class Tenpai_Calc:
                 han += 1000
                 fu = 25
                 yakuman.append("国士无双")
-                print(yakuman)
             elif agari_type == "kokushi_13":
                 han += 2000
                 fu = 25
@@ -766,7 +765,6 @@ class Tenpai_Calc:
 
     #算点
     def Point_Calc(input_maj,fulu):
-        print(input_maj,fulu)
         maj = input_maj["raw_maj"]
         income = input_maj["income_maj"]
         weather = input_maj["weather"]
@@ -805,14 +803,13 @@ class Tenpai_Calc:
             yakuman.append("天和")            
         if "地和" in additional_yaku:
             han += 1000
-            yakuman.append("地和")               
+            yakuman.append("地和")
+        if "自摸" in additional_yaku:
+            tsumo = True
         if "荣和" in additional_yaku:
             tsumo = False
         else:
             tsumo = True
-        if tsumo == True and menchin == True:
-            han += 1
-            yaku.append("门前清自摸和")
         hanfu_list = Tenpai_Calc.Han_Calc(maj,income,fulu,tsumo,weather,menfu)
         han += hanfu_list[0]
         fu += hanfu_list[1]
