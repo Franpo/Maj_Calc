@@ -8,7 +8,7 @@ ryu_list = [12,13,14,16,18,36]
 
 
 #输入实例，规范化输入由前端完成。必须传入的字典包含：一副手牌，进张牌，场风，自风。以及副露以字典形式传入。可能的信息以列表形式传入，如天和，立直，自摸，一发，海底捞等
-input_maj = {"raw_maj":[11,11,12,12,13,13,24,24,25,25,28,28,32],"income_maj":32,"weather":31,"menfu":32,"dora":2,"additional_yaku":["荣和"]}
+input_maj = {"raw_maj":[1,1,1,2,3,4,5,6,7,8,9,9,9],"income_maj":3,"weather":31,"menfu":32,"dora":2,"additional_yaku":["天和"]}
 
 #四副露列表，第一个元素代表副露种类，0为无，1为顺子，2为刻子，3为杠，4为暗杠，第二个元素代表副露牌，顺子情况下以顺子起点牌计算
 fulu = {1:[0,0], 2:[0,0], 3:[0,0], 4:[0,0]}
@@ -928,8 +928,70 @@ class Tenpai_Calc:
                                 point += "放铳者支付:"+ str(basic_point) + "点。" 
                             
                 else:
-                    #役满
-                    print("役满")
+                    if menfu == 31:
+                        point += "亲"
+                    else:
+                        point += "子"
+                    point += "家的"
+                    if tsumo == True:
+                        point += "自摸"
+                    else:
+                        point += "荣"
+                    point += "和。\n"
+                    point += "番："
+                    for x in yakuman: 
+                        point += str(x) + " "
+                    point += "\n"
+                    yakuman_bai = int(han/1000)
+                    basic_point = 32000
+                    if menfu == 31:
+                        if yakuman_bai == 1:
+                            basic_point = 48000
+                            point += "役满\n"
+                        elif yakuman_bai == 2:
+                            basic_point = 96000
+                            point += "两倍役满\n"
+                        elif yakuman_bai == 3:
+                            basic_point = 144000
+                            point += "三倍役满\n"
+                        elif yakuman_bai == 4:
+                            basic_point = 192000
+                            point += "四倍役满\n"
+                        elif yakuman_bai == 5:
+                            basic_point = 240000
+                            point += "五倍役满\n"
+                        elif yakuman_bai == 6:
+                            basic_point = 288000
+                            point += "六倍役满\n"
+                        if tsumo == True:
+                            point += "子家各支付:"+ str(int(basic_point/3)) + "点"
+                        else:
+                            point += "放铳者支付:"+ str(basic_point) + "点。"
+                    else:
+                        if yakuman_bai == 1:
+                            basic_point = 32000
+                            point += "役满\n"
+                        elif yakuman_bai == 2:
+                            basic_point = 64000
+                            point += "两倍役满\n"
+                        elif yakuman_bai == 3:
+                            basic_point = 96000
+                            point += "三倍役满\n"
+                        elif yakuman_bai == 4:
+                            basic_point = 128000
+                            point += "四倍役满\n"
+                        elif yakuman_bai == 5:
+                            basic_point = 160000
+                            point += "五倍役满\n"
+                        elif yakuman_bai == 6:
+                            basic_point = 192000
+                            point += "六倍役满\n"
+                        if tsumo == True:
+                            point += "亲家支付:"+ str(int(basic_point/2)) + "点，" + "子家各支付:"+ str(int(basic_point/4)) + "点。"
+                        else:
+                            point += "放铳者支付:"+ str(basic_point) + "点。" 
+                        
+                        
         return point
             
         
