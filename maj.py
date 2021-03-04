@@ -1,3 +1,4 @@
+import math
 #所有牌的编码，固定内容
 maj_list = [1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18,19,21,22,23,24,25,26,27,28,29,31,32,33,34,35,36,37]
 yaocyu_list = [1,9,11,19,21,29,31,32,33,34,35,36,37]
@@ -7,20 +8,10 @@ ryu_list = [12,13,14,16,18,36]
 
 
 #输入实例，规范化输入由前端完成。必须传入的字典包含：一副手牌，进张牌，场风，自风。以及副露以字典形式传入。可能的信息以列表形式传入，如天和，立直，自摸，一发，海底捞等
-raw_maj = [35,35,36,36]
-income_maj = 35
-tsumo = False
-weather = 31
-menfu = 31
+input_maj = {"raw_maj":[11,11,12,12,13,13,24,24,25,25,28,28,32],"income_maj":32,"weather":31,"menfu":32,"dora":2,"additional_yaku":["荣和"]}
+
 #四副露列表，第一个元素代表副露种类，0为无，1为顺子，2为刻子，3为杠，4为暗杠，第二个元素代表副露牌，顺子情况下以顺子起点牌计算
-fulu = {1:[2,11], 2:[3,19], 3:[4,22], 4:[0,0]}
-
-print("手牌"+ str(raw_maj))
-print("进张" + str(income_maj))
-print("自摸" + str(tsumo))
-print("场风" + str(weather))
-print("自风" + str(weather))
-
+fulu = {1:[0,0], 2:[0,0], 3:[0,0], 4:[0,0]}
 
 
 
@@ -454,18 +445,21 @@ class Tenpai_Calc:
             agari_type = Han_Judge.Judge_Type(maj,income)
             if agari_type == "kokushi":
                 han += 1000
-                fu += 5
+                fu = 25
                 yakuman.append("国士无双")
                 print(yakuman)
             elif agari_type == "kokushi_13":
                 han += 2000
-                fu += 5
+                fu = 25
                 yakuman.append("国士无双十三面")
             elif agari_type == "7_tai":
                 han += 2
                 fu = 25
                 yaku.append("七对子")
-                somete = Han_Judge.Judge_Somete(maj)
+                if tsumo == True:
+                    han += 1
+                    yaku.append("门前清自摸和")
+                somete = Han_Judge.Judge_Somete(maj,[],[])
                 if somete == "tsuiso":
                     han += 1000
                     yakuman.append("字一色")
@@ -475,7 +469,7 @@ class Tenpai_Calc:
                 if somete == "chiniso":
                     han += 6
                     yaku.append("清一色")
-                laotou = Han_Judge.Judge_Laotou(maj)
+                laotou = Han_Judge.Judge_Laotou(maj,[],[])
                 if laotou == "konlaotou":
                     han += 2
                     yaku.append("混老头")
@@ -502,8 +496,10 @@ class Tenpai_Calc:
                         ko.append(fulu_temp[1])
                         kan.append(fulu_temp[1])
                         ankan.append(fulu_temp[1])
-                print("副露顺子(起点)" + str(syun), "副露刻子" + str(ko), "其中杠为" + str(kan),"门清" + str(menchin))
                 #所有牌种类带来的加番写在这里
+                if menchin == True and tsumo == True:
+                    han += 1
+                    yaku.append("门前清自摸和")
                 if agari_type == "2_pai" and menchin == True:
                     han += 3
                     yaku.append("二杯口")
@@ -597,7 +593,7 @@ class Tenpai_Calc:
                     yakuman_temp = []
                     if not maj_temp:
                         #所有面子引发的加番写在这里
-                        if len(syun_temp) == 4 and menchin == True and jyan_temp != weather and jyan_temp != menfu:
+                        if len(syun_temp) == 4 and menchin == True and jyan_temp != weather and jyan_temp != menfu and jyan_temp not in [35,36,37]:
                             for num in syun_temp:
                                 if income == num or income -2 == num:
                                     #12居然不听0，麻将，很奇妙吧
@@ -742,9 +738,16 @@ class Tenpai_Calc:
                             elif income in syun_temp and income in [7,17,27]:
                                 fu_temp += 2
                             elif income - 1 in syun_temp:
-                                fu_temp += 2   
+                                fu_temp += 2
+                            elif menchin == False and len(syun_temp) == 4 and tsumo == False:
+                                fu_temp += 2
                         #选取番数最高的一面返回
                         if han_temp > han_temp_higher:
+                            han_temp_higher = han_temp
+                            fu_temp_higher = fu_temp
+                            yaku_temp_higher = yaku_temp
+                            yakuman_temp_higher = yakuman_temp
+                        elif han_temp == han_temp_higher and fu_temp > fu_temp_higher:
                             han_temp_higher = han_temp
                             fu_temp_higher = fu_temp
                             yaku_temp_higher = yaku_temp
@@ -759,17 +762,184 @@ class Tenpai_Calc:
         else:
             han = 0
             fu = 0
-        if yakuman != []:
-            yaku = []
-            yaku += yakuman
-        return han,fu,yaku
+        return han,fu,yaku,yakuman,agari_type
+
+    #算点
+    def Point_Calc(input_maj,fulu):
+        print(input_maj,fulu)
+        maj = input_maj["raw_maj"]
+        income = input_maj["income_maj"]
+        weather = input_maj["weather"]
+        menfu = input_maj["menfu"]
+        dora = input_maj["dora"]
+        additional_yaku = input_maj["additional_yaku"]
+        han = 0
+        fu = 0
+        yaku = []
+        yakuman = []
+        if "立直" in additional_yaku:
+            han += 1
+            yaku.append("立直")
+        if "两立直" in additional_yaku:
+            han += 2
+            yaku.append("两立直")
+        if "一发" in additional_yaku:
+            han += 1
+            yaku.append("一发")            
+        if "海底摸月" in additional_yaku:
+            han += 1
+            yaku.append("海底摸月")            
+        if "河底捞鱼" in additional_yaku:
+            han += 1
+            yaku.append("河底捞鱼")            
+        if "岭上开花" in additional_yaku:
+            han += 1
+            yaku.append("岭上开花")
+        if "枪杠" in additional_yaku:
+            han += 1
+            yaku.append("枪杠")
+        if "天和" in additional_yaku:
+            han += 1000
+            yakuman.append("天和")            
+        if "地和" in additional_yaku:
+            han += 1000
+            yakuman.append("地和")               
+        if "荣和" in additional_yaku:
+            tsumo = False
+        else:
+            tsumo = True
+        hanfu_list = Tenpai_Calc.Han_Calc(maj,income,fulu,tsumo,weather,menfu)
+        han += hanfu_list[0]
+        fu += hanfu_list[1]
+        yaku += hanfu_list[2]
+        yakuman += hanfu_list[3]
+        agari_type = hanfu_list[4]
+        point = ""
+        if agari_type == "mentsu":
+            fu = fu / 10
+            fu = int(math.ceil(fu))*10
+        if fu < 20:
+            point = "这副牌不是和了型，请仔细确认。"
+        if fu >= 20:
+            if not yaku and han < 1000:
+                yaku.append("无役")
+                point += "有无役怪啊！\n" + str(fu) +"符。"
+            else:
+                if yakuman != []:
+                    yaku = []
+                    yaku += yakuman
+                if dora >0 and han < 1000:
+                    han += dora
+                    dora_count = "宝牌：" + str(dora)
+                    yaku.append(dora_count)
+                if yakuman == []:
+                    if menfu == 31:
+                        point += "亲"
+                    else:
+                        point += "子"
+                    point += "家的"
+                    if tsumo == True:
+                        point += "自摸"
+                    else:
+                        point += "荣"
+                    point += "和。\n"
+                    point += "番："
+                    for x in yaku: 
+                        point += str(x) + " "
+                    point += "\n"
+                    point += str(han) + "番，" + str(fu) + "符。"
+                    point += "\n"
+                    if han <= 4:
+                        basic_point = fu * 2 ** (han + 2)
+                        if menfu ==31:
+                            basic_point = basic_point *6
+                            if tsumo == True:
+                                basic_point = int(math.ceil(basic_point/3/100)*100)
+                                if basic_point >=12000:
+                                    basic_point = 12000
+                                    point += "满贯\n"
+                                point += "子家各支付:"+ str(basic_point) + "点"
+                            else:
+                                basic_point_ron = int(math.ceil(basic_point/100)*100)
+                                if basic_point_ron >=12000:
+                                    basic_point_ron = 12000
+                                    point += "满贯\n"
+                                point += "放铳者支付:"+ str(basic_point_ron) + "点。" 
+                        else:
+                            basic_point = basic_point *4
+                            if tsumo == True:
+                                basic_point = int(math.ceil(basic_point/100)*100)
+                                if basic_point >= 8000:
+                                    basic_point_oya = 4000
+                                    basic_point_other = 2000
+                                    point += "满贯\n"
+                                else:
+                                    basic_point_oya = int(math.ceil(basic_point/2/100)*100)
+                                    basic_point_other = int(math.ceil(basic_point/4/100)*100)
+                                point += "亲家支付:"+ str(basic_point_oya) + "点，" + "子家各支付:"+ str(basic_point_other) + "点。"
+                            else:
+                                basic_point_ron = int(math.ceil(basic_point/100)*100)
+                                if basic_point_ron >=8000:
+                                    basic_point_ron = 8000
+                                    point += "满贯\n"
+                                point += "放铳者支付:"+ str(basic_point_ron) + "点。"
+                    elif han >= 5:
+                        basic_point = 8000
+                        if menfu == 31:
+                            if han == 5:
+                                basic_point = 12000
+                                point += "满贯\n"
+                            elif han in [6,7]:
+                                basic_point = 18000
+                                point += "跳满\n"
+                            elif han in [8,9,10]:
+                                basic_point = 24000
+                                point += "倍满\n"
+                            elif han in [11,12]:
+                                basic_point = 36000
+                                point += "三倍满\n"
+                            else:
+                                basic_point = 48000
+                                point += "累计役满\n"
+                            if tsumo == True:
+                                point += "子家各支付:"+ str(int(basic_point/3)) + "点"
+                            else:
+                                point += "放铳者支付:"+ str(basic_point) + "点。" 
+                                
+                        else:
+                            if han == 5:
+                                basic_point = 8000
+                                point += "满贯\n"
+                            elif han in [6,7]:
+                                basic_point = 12000
+                                point += "跳满\n"
+                            elif han in [8,9,10]:
+                                basic_point = 16000
+                                point += "倍满\n"
+                            elif han in [11,12]:
+                                basic_point = 24000
+                                point += "三倍满\n"
+                            else:
+                                basic_point = 32000
+                                point += "累计役满\n"
+                            if tsumo == True:
+                                point += "亲家支付:"+ str(int(basic_point/2)) + "点，" + "子家各支付:"+ str(int(basic_point/4)) + "点。"
+                            else:
+                                point += "放铳者支付:"+ str(basic_point) + "点。" 
+                            
+                else:
+                    #役满
+                    print("役满")
+        return point
+            
+        
         
 
 
 
     
-total = Tenpai_Calc.Han_Calc(raw_maj,income_maj,fulu,tsumo,weather,menfu)
-print(total)
+point = Tenpai_Calc.Point_Calc(input_maj,fulu)
+print(point)
 
 #kiru = Tenpai_Calc.Nani_Giru(raw_maj)
 #print(kiru)
