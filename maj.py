@@ -690,7 +690,6 @@ class Tenpai_Calc:
                                     han_temp += 2
                                 yaku_temp.append("纯全带幺九")
                         #算符
-                        print(jyan_temp,income,ko_temp,ko,kan,ankan)
                         anko_count = [num for num in ko_temp if num not in ko]
                         if income in anko_count and tsumo == False:
                             anko_count.remove(income)
@@ -721,13 +720,29 @@ class Tenpai_Calc:
                                 fu_temp += 16
                             else:
                                 fu_temp += 8
-                        if income == jyan_temp:
+                        #雀头加符
+                        if jyan_temp == weather:
                             fu_temp += 2
+                        if jyan_temp == menfu:
+                            fu_temp += 2
+                        if jyan_temp in [35,36,37]:
+                            fu_temp += 2
+                        #门清食和加符
                         if tsumo == False and menchin == True:
                             fu_temp +=10
+                        #自摸加符
                         if tsumo == True and "平和" not in yaku_temp:
                             fu_temp += 2
-                            
+                        #单钓，边张，坎张加符
+                        if "平和" not in yaku_temp:
+                            if income == jyan_temp:
+                                fu_temp += 2
+                            elif income - 2 in syun_temp and income in [3,13,23]:
+                                fu_temp += 2
+                            elif income in syun_temp and income in [7,17,27]:
+                                fu_temp += 2
+                            elif income - 1 in syun_temp:
+                                fu_temp += 2   
                         #选取番数最高的一面返回
                         if han_temp > han_temp_higher:
                             han_temp_higher = han_temp
