@@ -10,7 +10,7 @@ ryu_list = [12,13,14,16,18,36]
 
 
 
-maj = "11223344s 暗杠西 东东 自摸东 自风南 场风西 dora2 立直 一发"
+maj = "2s 自摸2s 吃3s 碰5s  杠9s 碰8s"
 
 class Maj_Convert:
     def Char_Convert(maj):
@@ -101,8 +101,10 @@ class Maj_Convert:
             elif re.findall("(?<=自风|门风)(.)", maj)[0] == "北":
                 menfu = 34
         dora = 0
-        if re.findall("(?<=dora)\d", maj):
-            dora += int(re.findall("(?<=dora)\d", maj)[0])
+        if re.findall("(?<=dora)\d+", maj):
+            dora += int(re.findall("(?<=dora)\d+", maj)[0])
+        if dora > 200:
+            dora = 200
             
         #明杠副露
         meikan = []
@@ -258,14 +260,15 @@ class Maj_Convert:
             fulu[count] = [3,meikan[num]]
             count += 1
         for num in range(0,len(meiko)):
-            fulu[count] = [4,meiko[num]]
+            fulu[count] = [2,meiko[num]]
             count += 1
         for num in range(0,len(meisyun)):
-            fulu[count] = [4,meisyun[num]]
+            fulu[count] = [1,meisyun[num]]
             count += 1
         if result == "":
             result_calc = Tenpai_Calc.Point_Calc(maj_dict,fulu)
             result += result_calc
+        print(fulu)
         return result
 
 
