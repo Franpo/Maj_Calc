@@ -8,10 +8,10 @@ ryu_list = [12,13,14,16,18,36]
 
 
 #输入实例，规范化输入由前端完成。必须传入的字典包含：一副手牌，进张牌，场风，自风。以及副露以字典形式传入。可能的信息以列表形式传入，如天和，立直，自摸，一发，海底捞等
-input_maj = {"raw_maj":[1,1,1,2,3,4,5,6,7,8,9,9,9],"income_maj":3,"weather":31,"menfu":32,"dora":2,"additional_yaku":["天和"]}
+#input_maj = {"raw_maj":[1,1,1,2,3,4,5,6,7,8,9,9,9],"income_maj":3,"weather":31,"menfu":32,"dora":2,"additional_yaku":["天和"]}
 
 #四副露列表，第一个元素代表副露种类，0为无，1为顺子，2为刻子，3为杠，4为暗杠，第二个元素代表副露牌，顺子情况下以顺子起点牌计算
-fulu = {1:[0,0], 2:[0,0], 3:[0,0], 4:[0,0]}
+#fulu = {1:[0,0], 2:[0,0], 3:[0,0], 4:[0,0]}
 
 
 
@@ -791,13 +791,15 @@ class Tenpai_Calc:
             yaku.append("海底摸月")            
         if "河底捞鱼" in additional_yaku:
             han += 1
-            yaku.append("河底捞鱼")            
+            yaku.append("河底捞鱼")
+            tsumo = False
         if "岭上开花" in additional_yaku:
             han += 1
             yaku.append("岭上开花")
         if "枪杠" in additional_yaku:
             han += 1
             yaku.append("枪杠")
+            tsumo = False
         if "天和" in additional_yaku:
             han += 1000
             yakuman.append("天和")            
@@ -808,6 +810,9 @@ class Tenpai_Calc:
             tsumo = False
         else:
             tsumo = True
+        if tsumo == True and menchin == True:
+            han += 1
+            yaku.append("门前清自摸和")
         hanfu_list = Tenpai_Calc.Han_Calc(maj,income,fulu,tsumo,weather,menfu)
         han += hanfu_list[0]
         fu += hanfu_list[1]
@@ -1000,8 +1005,8 @@ class Tenpai_Calc:
 
 
     
-point = Tenpai_Calc.Point_Calc(input_maj,fulu)
-print(point)
+#point = Tenpai_Calc.Point_Calc(input_maj,fulu)
+#print(point)
 
 #kiru = Tenpai_Calc.Nani_Giru(raw_maj)
 #print(kiru)
