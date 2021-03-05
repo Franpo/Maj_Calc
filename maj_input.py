@@ -10,7 +10,7 @@ ryu_list = [12,13,14,16,18,36]
 
 
 
-maj = "2s 自摸2s 吃3s 碰5s  杠9s 碰8s"
+maj = "2233334444556s 自摸6s"
 
 class Maj_Convert:
     def Char_Convert(maj):
@@ -18,15 +18,15 @@ class Maj_Convert:
         fulu = {1:[0,0],2:[0,0],3:[0,0],4:[0,0]}
         additional_yaku = []
         result = ""
-        m = re.findall("(?<!吃|碰|杠|和|摸|进)\d+(?=m)", maj)
+        m = re.findall("(?<!吃|碰|杠|和|摸|进|恰)\d+(?=m)", maj)
         m_all = ""
         for num in m:
             m_all += str(num)
-        s = re.findall("(?<!吃|碰|杠|和|摸|进)\d+(?=s)", maj)
+        s = re.findall("(?<!吃|碰|杠|和|摸|进|恰)\d+(?=s)", maj)
         s_all = ""
         for num in s:
             s_all += str(num)        
-        p = re.findall("(?<!吃|碰|杠|和|摸|进)\d+(?=p)", maj)
+        p = re.findall("(?<!吃|碰|杠|和|摸|进|恰)\d+(?=p)", maj)
         p_all = ""
         for num in p:
             p_all += str(num)
@@ -215,37 +215,53 @@ class Maj_Convert:
             maj_all.append(num)
             maj_all.append(num+1)
             maj_all.append(num+2)
+        maj_all.append(income_maj)
         maj_all = Dazi_Calc.Tenpai_Arrange(maj_all)
         for num in maj_all:
             if num not in maj_list:
                 result += "输入不合法！"
+                break
+        if len(maj_all) -len(meikan) -len(ankan) !=14 and result == "":
+            result += "和牌也要讲究基本法，您输入的牌数量不对。"
         lenth = len(maj_all)
         for num in range(0,lenth-4):
             if maj_all[num] == maj_all[num+4]:
                 result += "您的牌型中包含大量重复牌，系统提醒您，文明麻将，请勿印牌。"
                 break
+        tsumo_count = 0
+        ron_count = 0        
         if re.findall("天和", maj):
             additional_yaku.append("天和")
+            tsumo_count += 1
         if re.findall("立直", maj) and not re.findall("两立直", maj):
             additional_yaku.append("立直")
         if re.findall("地和", maj):
             additional_yaku.append("地和")
+            tsumo_count += 1
         if re.findall("海底", maj):
             additional_yaku.append("海底摸月")
+            tsumo_count += 1
         if re.findall("一发", maj):
             additional_yaku.append("一发")
         if re.findall("河底", maj):
-            additional_yaku.append("河底摸鱼")
+            additional_yaku.append("河底捞鱼")
+            ron_count += 1
         if re.findall("岭上", maj):
             additional_yaku.append("岭上开花")
+            tsumo_count += 1
         if re.findall("两立直", maj):
             additional_yaku.append("两立直")
         if re.findall("枪杠", maj):
             additional_yaku.append("枪杠")
+            ron_count += 1
         if re.findall("荣和", maj):
             additional_yaku.append("荣和")
+            ron_count += 1
         if re.findall("自摸", maj):
-            additional_yaku.append("自摸")            
+            additional_yaku.append("自摸")
+            tsumo_count += 1
+        if tsumo_count != 0 and ron_count !=0 and result == "":
+            result += "您输入的附加信息中包含冲突内容，请检查后重新输入。"        
         maj_dict["raw_maj"] = raw_maj
         maj_dict["income_maj"] = income_maj
         maj_dict["weather"] = weather

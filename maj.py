@@ -277,7 +277,14 @@ class Han_Judge:
     #判断一杯口
     def Judge_1pai(syun,menchin,agari_type):
         pai = False
-        if len(list(set(syun))) != len(syun) and agari_type != "2_pai" and menchin == True:
+        if len(list(set(syun))) != len(syun) and menchin == True:
+            pai = True
+        return pai
+
+    #判断二杯口
+    def Judge_2pai(syun,menchin,agari_type):
+        pai = False
+        if len(list(set(syun))) +2 == len(syun) and menchin == True:
             pai = True
         return pai
     
@@ -437,6 +444,7 @@ class Tenpai_Calc:
     def Han_Calc(maj,income,fulu,tsumo,weather,menfu):
         han = 0
         fu = 20
+        agari_type = ""
         yaku = []
         yakuman = []
         maj.append(income)
@@ -499,9 +507,6 @@ class Tenpai_Calc:
                 if menchin == True and tsumo == True:
                     han += 1
                     yaku.append("门前清自摸和")
-                if agari_type == "2_pai" and menchin == True:
-                    han += 3
-                    yaku.append("二杯口")
                 somete = Han_Judge.Judge_Somete(maj,syun,ko)
                 if somete == "tsuiso":
                     han += 1000
@@ -604,7 +609,10 @@ class Tenpai_Calc:
                                         han_temp +=1
                                         yaku_temp.append("平和")
                                         break
-                        if Han_Judge.Judge_1pai(syun_temp,menchin,agari_type) == True:
+                        if Han_Judge.Judge_2pai(syun_temp,menchin,agari_type) == True:
+                            han_temp += 3
+                            yaku_temp.append("二杯口")
+                        if Han_Judge.Judge_1pai(syun_temp,menchin,agari_type) == True and Han_Judge.Judge_2pai(syun_temp,menchin,agari_type) == False:
                             han_temp += 1
                             yaku_temp.append("一杯口")
                         if Han_Judge.Judge_Taitai(ko_temp) == True:
@@ -965,6 +973,9 @@ class Tenpai_Calc:
                         elif yakuman_bai == 6:
                             basic_point = 288000
                             point += "六倍役满\n"
+                        elif yakuman_bai == 7:
+                            basic_point = 336000
+                            point += "七...倍役满???你在做梦吧？"
                         if tsumo == True:
                             point += "子家各支付:"+ str(int(basic_point/3)) + "点"
                         else:
@@ -988,6 +999,9 @@ class Tenpai_Calc:
                         elif yakuman_bai == 6:
                             basic_point = 192000
                             point += "六倍役满\n"
+                        elif yakuman_bai == 7:
+                            basic_point = 224000
+                            point += "七...倍役满???你在做梦吧？"
                         if tsumo == True:
                             point += "亲家支付:"+ str(int(basic_point/2)) + "点，" + "子家各支付:"+ str(int(basic_point/4)) + "点。"
                         else:
