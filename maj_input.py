@@ -58,8 +58,8 @@ class Maj_Convert:
                 raw_maj.append(37)
         raw_maj = Dazi_Calc.Tenpai_Arrange(raw_maj)
         income_maj = 0
-        if re.findall("(?<=摸|和|进)(东|南|西|北|中|发|白|\dm|\ds|\dp)", maj):
-            income = re.findall("(?<=摸|和|进)(东|南|西|北|中|发|白|\dm|\ds|\dp)", maj)[0]
+        if re.findall("(?<=荣|摸|和|进)(东|南|西|北|中|发|白|\dm|\ds|\dp)", maj):
+            income = re.findall("(?<=荣|摸|和|进)(东|南|西|北|中|发|白|\dm|\ds|\dp)", maj)[0]
             if income == "东":
                 income_maj = 31
             if income == "南":
@@ -254,7 +254,7 @@ class Maj_Convert:
         if re.findall("枪杠", maj):
             additional_yaku.append("枪杠")
             ron_count += 1
-        if re.findall("荣和", maj):
+        if re.findall("(?<!天|地)(荣|和)", maj):
             additional_yaku.append("荣和")
             ron_count += 1
         if re.findall("自摸", maj):
