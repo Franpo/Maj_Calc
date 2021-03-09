@@ -179,7 +179,7 @@ class Han_Judge:
                             maj_temp.insert(0,99)
                 maj_temp = [num for num in maj_temp if num != 99]
                 if not maj_temp:
-                    agari_type = "2_pai"
+                    agari_type = "mentsu"
         return agari_type
     
     #判断染手

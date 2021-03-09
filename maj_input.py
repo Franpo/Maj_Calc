@@ -10,7 +10,7 @@ ryu_list = [12,13,14,16,18,36]
 
 
 
-maj = "2233334444556s 自摸6s"
+maj = "223344s 55677p 白白   荣6p"
 
 class Maj_Convert:
     def Char_Convert(maj):
@@ -18,19 +18,19 @@ class Maj_Convert:
         fulu = {1:[0,0],2:[0,0],3:[0,0],4:[0,0]}
         additional_yaku = []
         result = ""
-        m = re.findall("(?<!吃|碰|杠|和|摸|进|恰)\d+(?=m)", maj)
+        m = re.findall("(?<!吃|碰|杠|和|摸|进|恰|荣)\d+(?=m)", maj)
         m_all = ""
         for num in m:
             m_all += str(num)
-        s = re.findall("(?<!吃|碰|杠|和|摸|进|恰)\d+(?=s)", maj)
+        s = re.findall("(?<!吃|碰|杠|和|摸|进|恰|荣)\d+(?=s)", maj)
         s_all = ""
         for num in s:
             s_all += str(num)        
-        p = re.findall("(?<!吃|碰|杠|和|摸|进|恰)\d+(?=p)", maj)
+        p = re.findall("(?<!吃|碰|杠|和|摸|进|恰|荣)\d+(?=p)", maj)
         p_all = ""
         for num in p:
             p_all += str(num)
-        z = re.findall("(?<!风|摸|和|进|碰|杠|一)(东|南|西|北|中|发|白)", maj)          
+        z = re.findall("(?<!风|摸|和|进|碰|杠|荣|一)(东|南|西|北|中|发|白)", maj)          
         m = list(m_all)
         s = list(s_all)
         p = list(p_all)
@@ -286,12 +286,104 @@ class Maj_Convert:
             result += result_calc
         print(fulu)
         return result
-
+    
+    def Output(num):
+        char = ""
+        if num <10 and num >0:
+            char += str(num)
+            char += "m"
+        elif num <20 and num >10:
+            num -= 10
+            char += str(num)
+            char += "s"
+        elif num <30 and num >20:
+            num -= 20
+            char += str(num)
+            char += "p"
+        elif num ==31:
+            char += "东"
+        elif num ==32:
+            char += "南"
+        elif num ==33:
+            char += "西"
+        elif num ==34:
+            char += "北"
+        elif num ==35:
+            char += "中"
+        elif num ==36:
+            char += "发"
+        elif num ==37:
+            char += "白"
+        return char
+        
+    def Kiru_Convert(maj):
+        maj_dict = {"raw_maj":[],"income_maj":99,"weather":31,"menfu":31,"dora":0,"additional_yaku":[]}
+        result = ""
+        m = re.findall("\d+(?=m)", maj)
+        m_all = ""
+        for num in m:
+            m_all += str(num)
+        s = re.findall("\d+(?=s)", maj)
+        s_all = ""
+        for num in s:
+            s_all += str(num)        
+        p = re.findall("\d+(?=p)", maj)
+        p_all = ""
+        for num in p:
+            p_all += str(num)
+        z = re.findall("东|南|西|北|中|发|白", maj)          
+        m = list(m_all)
+        s = list(s_all)
+        p = list(p_all)
+        raw_maj = []
+        for num in m:
+            if num != "0":
+                raw_maj.append(int(num))
+        for num in s:
+            if num != "0":
+                raw_maj.append(int(num)+10)
+        for num in p:
+            if num != "0":
+                raw_maj.append(int(num)+20)
+        for num in z:
+            if num == "东":
+                raw_maj.append(31)
+            if num == "南":
+                raw_maj.append(32)
+            if num == "西":
+                raw_maj.append(33)
+            if num == "北":
+                raw_maj.append(34)
+            if num == "中":
+                raw_maj.append(35)
+            if num == "发":
+                raw_maj.append(36)
+            if num == "白":
+                raw_maj.append(37)
+        raw_maj = Dazi_Calc.Tenpai_Arrange(raw_maj)
+        lenth = len(raw_maj)
+        for num in range(0,lenth-4):
+            if raw_maj[num] == raw_maj[num+4]:
+                result += "您的牌型中包含大量重复牌，系统提醒您，文明麻将，请勿印牌。"
+                break
+        kiru = Tenpai_Calc.Nani_Giru(raw_maj)
+        result = ""
+        if not kiru:
+            result = "切什么也不会听牌的哦。"
+        else:
+            for num in kiru:
+                result += "切"
+                char = Maj_Convert.Output(num)
+                result += char
+                result += " ，听："
+                for pai in kiru[num]:
+                    charpai = Maj_Convert.Output(pai)
+                    result += charpai
+                    result += " "
+                result += "\n"
+        return result
 
  
-
-maj = Maj_Convert.Char_Convert(maj)
-print(maj)
 
 
 
