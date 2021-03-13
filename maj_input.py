@@ -10,7 +10,7 @@ ryu_list = [12,13,14,16,18,36]
 
 
 
-maj = "223344s 55677p 白白   荣6p"
+maj = "223344s 556677p11m"
 
 class Maj_Convert:
     def Char_Convert(maj):
@@ -317,7 +317,6 @@ class Maj_Convert:
         return char
         
     def Kiru_Convert(maj):
-        maj_dict = {"raw_maj":[],"income_maj":99,"weather":31,"menfu":31,"dora":0,"additional_yaku":[]}
         result = ""
         m = re.findall("\d+(?=m)", maj)
         m_all = ""
@@ -384,6 +383,7 @@ class Maj_Convert:
         return result
 
  
-
+result = Maj_Convert.Kiru_Convert(maj)
+print(result)
 
 

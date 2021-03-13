@@ -1,4 +1,5 @@
 from maj import *
+from collections import defaultdict
 import time
 
 #所有牌的编码，固定内容
@@ -9,7 +10,7 @@ ryu_list = [12,13,14,16,18,36]
 #1-9m  11-19s 21-29p 31-34东南西北 35-37中发白
 
 
-maj = [1,2,9,11,19,21,29,31,32,33,34,35,36,37]
+maj = [2,2,2,3,6,12,12,13,21,22,24,31,31,32]
 print(maj)
 
 
@@ -281,15 +282,18 @@ class Pairi_Calc:
                         moche_list[list_num] = [numx,numy]
                         list_num +=1
         print("最小" + str(syantei_all) + "向听","七对" + str(syantei_7tai) + "向听","标准型" + str(syantei_normal) +"向听","国士无双" +str(syantei_kokushi) +"向听")
-        print(moche_list)
+        #整理字典
+        moche_list_refine = defaultdict(list) 
+        for num in range(0,list_num):
+            list_temp = moche_list[num]
+            moche_list_refine[list_temp[0]].append(list_temp[1])
+        return syantei_all,syantei_normal,syantei_7tai,syantei_kokushi,moche_list_refine
                     
-        
-
-
-
 
 start = time.clock()
 moche = Pairi_Calc.Moche_Calc(maj)
+
+                              
 elapsed = (time.clock() - start)
 print("用时",elapsed)
         
