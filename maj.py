@@ -85,6 +85,13 @@ class Dazi_Calc:
         maj_jyan = [num for num in maj_jyan if num != 99]        
         return maj_jyan
 
+    def Check_Remain(maj,pai):
+        remain = 4
+        for num in range(0,len(maj)):
+            if maj[num] == pai:
+                remain -= 1
+        return remain
+
     #和了判定
     def Maj_Agari(maj):
         maj = Dazi_Calc.Tenpai_Arrange(maj)

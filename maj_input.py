@@ -382,8 +382,5 @@ class Maj_Convert:
                 result += "\n"
         return result
 
- 
-result = Maj_Convert.Kiru_Convert(maj)
-print(result)
 
 

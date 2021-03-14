@@ -1,4 +1,5 @@
 from maj import *
+from maj_input import *
 from collections import defaultdict
 import time
 
@@ -10,8 +11,9 @@ ryu_list = [12,13,14,16,18,36]
 #1-9m  11-19s 21-29p 31-34东南西北 35-37中发白
 
 
-maj = [2,2,2,3,6,12,12,13,21,22,24,31,31,32]
+maj = "11133566777799p"
 print(maj)
+
 
 
 class Pairi_Calc:
@@ -69,11 +71,18 @@ class Pairi_Calc:
                                 break
                         if qian == True:
                             #z为跳张，使13456类牌型变为13+456
+                            over = False
                             for numz in range(num+1,lenth):
+                                if over == True:
+                                    break
                                 if maj[num] +2 == maj[numz] and numz not in maj_calced:
                                     for numa in range(numz+1,lenth):
+                                        if over == True:
+                                            break
                                         if maj[numz] +1 == maj[numa] and numa not in maj_calced:
                                             for numb in range(numa+1,lenth):
+                                                if over == True:
+                                                    break
                                                 if maj[numa] +1 == maj[numb] and numb not in maj_calced:
                                                     for numc in range(numb+1,lenth):
                                                         if maj[numb] +1 == maj[numc] and numc not in maj_calced:
@@ -81,11 +90,12 @@ class Pairi_Calc:
                                                             maj_calced.append(numb)
                                                             maj_calced.append(numc)
                                                             mentsu += 1
+                                                            over = True
                                                             break
-                                                            break
-                                                            break
-                                                            break
+                    over = False
                     for numy in range(num+1,lenth):
+                        if over == True:
+                            break
                         if maj[num]+1 == maj[numy] and num not in maj_calced and numy not in maj_calced and maj[num] not in tsu_list and maj[numy] not in tsu_list:
                             for numz in range(numy+1,lenth):
                                 if maj[numy]+1 ==maj[numz] and numz not in maj_calced and maj[numz] not in tsu_list:
@@ -93,7 +103,7 @@ class Pairi_Calc:
                                     maj_calced.append(numy)
                                     maj_calced.append(numz)
                                     mentsu += 1
-                                    break
+                                    over = True
                                     break
         return mentsu,maj_calced
 
@@ -281,7 +291,6 @@ class Pairi_Calc:
                     if syantei_all_new < syantei_all:
                         moche_list[list_num] = [numx,numy]
                         list_num +=1
-        print("最小" + str(syantei_all) + "向听","七对" + str(syantei_7tai) + "向听","标准型" + str(syantei_normal) +"向听","国士无双" +str(syantei_kokushi) +"向听")
         #整理字典
         moche_list_refine = defaultdict(list) 
         for num in range(0,list_num):
@@ -289,9 +298,94 @@ class Pairi_Calc:
             moche_list_refine[list_temp[0]].append(list_temp[1])
         return syantei_all,syantei_normal,syantei_7tai,syantei_kokushi,moche_list_refine
                     
-
+    def Moche_Convert(maj):
+        result = ""
+        m = re.findall("\d+(?=m)", maj)
+        m_all = ""
+        for num in m:
+            m_all += str(num)
+        s = re.findall("\d+(?=s)", maj)
+        s_all = ""
+        for num in s:
+            s_all += str(num)        
+        p = re.findall("\d+(?=p)", maj)
+        p_all = ""
+        for num in p:
+            p_all += str(num)
+        z = re.findall("东|南|西|北|中|发|白", maj)          
+        m = list(m_all)
+        s = list(s_all)
+        p = list(p_all)
+        raw_maj = []
+        for num in m:
+            if num != "0":
+                raw_maj.append(int(num))
+        for num in s:
+            if num != "0":
+                raw_maj.append(int(num)+10)
+        for num in p:
+            if num != "0":
+                raw_maj.append(int(num)+20)
+        for num in z:
+            if num == "东":
+                raw_maj.append(31)
+            if num == "南":
+                raw_maj.append(32)
+            if num == "西":
+                raw_maj.append(33)
+            if num == "北":
+                raw_maj.append(34)
+            if num == "中":
+                raw_maj.append(35)
+            if num == "发":
+                raw_maj.append(36)
+            if num == "白":
+                raw_maj.append(37)
+        raw_maj = Dazi_Calc.Tenpai_Arrange(raw_maj)
+        lenth = len(raw_maj)
+        if lenth not in [2,5,8,11,14]:
+            result += "输入的牌数量，输入牌需满足(3n+2)条件。"
+        for num in range(0,lenth-4):
+            if raw_maj[num] == raw_maj[num+4]:
+                result += "您的牌型中包含大量重复牌，系统提醒您，文明麻将，请勿印牌。"
+                break
+        moche_info = Pairi_Calc.Moche_Calc(raw_maj)
+        kiru = moche_info[4]
+        syantei_all = moche_info[0]
+        syantei_normal = moche_info[1]
+        syantei_7tai = moche_info[2]
+        syantei_kokushi = moche_info[3]
+        if result == "":
+            if not kiru:
+                result = "这副牌已经是和了型了。"
+            else:
+                if syantei_all == 0:
+                    result += "听牌：\n"
+                else:
+                    result += "最小" + str(syantei_all) + "向听，一般型" + str(syantei_normal) +"向听"
+                    if syantei_7tai <= syantei_normal:
+                        result += "，七对" + str(syantei_7tai) + "向听"
+                    if syantei_kokushi < 6:
+                        result += "国士无双" +str(syantei_kokushi) +"向听"
+                    result += "\n"
+                for num in kiru:
+                    remain = 0
+                    result += "切"
+                    char = Maj_Convert.Output(num)
+                    result += char
+                    result += " ，进："
+                    for pai in kiru[num]:
+                        remain += Dazi_Calc.Check_Remain(raw_maj,pai)
+                        charpai = Maj_Convert.Output(pai)
+                        result += charpai
+                        result += " "
+                    result += "共计" + str(remain) + "张。" + "\n"
+        return result
+        
 start = time.clock()
-moche = Pairi_Calc.Moche_Calc(maj)
+moche = Pairi_Calc.Moche_Convert(maj)
+print(moche)
+
 
                               
 elapsed = (time.clock() - start)
