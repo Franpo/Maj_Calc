@@ -10,8 +10,7 @@ tsu_list = [31,32,33,34,35,36,37]
 ryu_list = [12,13,14,16,18,36]
 #1-9m  11-19s 21-29p 31-34东南西北 35-37中发白
 
-
-maj = "11133566777799p"
+maj = "44448888s123456p"
 print(maj)
 
 
@@ -237,8 +236,11 @@ class Pairi_Calc:
                     for num in range(0,len(maj)-3):
                         if maj[num] == maj[num+3]:
                             pai_4.append(maj[num])
-                    if maj_temp == pai_4:
-                        overcount = True
+                    overcount = True
+                    for num in maj_temp:
+                        if num not in pai_4:
+                            overcount = False
+                            break
                 Syantei_nojyan = 2*n - 2*mentsu_nojyan - tatsu_nojyan
                 if overcount == True:
                     Syantei_nojyan += 1
@@ -260,7 +262,10 @@ class Pairi_Calc:
         return Syantei
         
     def Moche_Calc(maj):
-        maj_zone = Pairi_Calc.Create_Zone(maj)
+        maj_zone = []
+        maj_zone += maj_list
+        #有问题，放弃使用区域法
+        #maj_zone = Pairi_Calc.Create_Zone(maj)
         lenth = len(maj)
         #防止进第五张牌
         if lenth >=4:

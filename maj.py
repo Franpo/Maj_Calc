@@ -84,7 +84,8 @@ class Dazi_Calc:
                 maj_jyan[num+1] = 99
         maj_jyan = [num for num in maj_jyan if num != 99]        
         return maj_jyan
-
+    
+    #检查余张
     def Check_Remain(maj,pai):
         remain = 4
         for num in range(0,len(maj)):
