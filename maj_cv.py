@@ -17,10 +17,12 @@ class Maj_CV:
         strmin_val = str(min_val)
         temp_loc = min_loc
         other_loc = min_loc
-        if num in [17,19,22,24,25,26,28,29]:
+        if num in [22,24,25,26,28,29]:
             threshold = 0.05
-        elif num == 37:
-            threshold = 0.005
+        elif num in [19]:
+            threshold = 0.04
+        elif num in [37]:
+            threshold = 0.01
         else:
             threshold = 0.025
         loc = numpy.where(result<threshold)
